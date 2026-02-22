@@ -24,6 +24,33 @@ export default function EntryCard({ entry, onDelete }: EntryCardProps) {
     minute: '2-digit'
   });
 
+  // Format the date (e.g., "Mon, Feb 23" or "Yesterday" or "Today")
+  const formatDate = (dateStr: string) => {
+    const entryDate = new Date(dateStr);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Reset times for accurate date comparison
+    const entryDateOnly = new Date(entryDate.getFullYear(), entryDate.getMonth(), entryDate.getDate());
+    const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
+    
+    if (entryDateOnly.getTime() === todayOnly.getTime()) {
+      return 'Today';
+    } else if (entryDateOnly.getTime() === yesterdayOnly.getTime()) {
+      return 'Yesterday';
+    } else {
+      return entryDate.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+  };
+
+  const dateLabel = formatDate(entry.date);
+
   // Calculate total calories
   const totalCalories = entry.foods?.reduce((sum, f) => sum + (f.calories || 0), 0) || 0;
 
@@ -49,7 +76,7 @@ export default function EntryCard({ entry, onDelete }: EntryCardProps) {
         )}
         
         <div className="entry-header">
-          <span className="entry-time">{time}</span>
+          <span className="entry-time">{dateLabel} • {time}</span>
           <span className="entry-mood">{MOOD_EMOJIS[entry.mood]}</span>
         </div>
 
